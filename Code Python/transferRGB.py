@@ -90,13 +90,17 @@ class ColorTransferWidget(QWidget):
         source_channel_stddevs = [np.std(channel) for channel in source_channels]
         target_channel_stddevs = [np.std(channel) for channel in target_channels]
 
-        # Appliquer le transfert de couleur
+        # Appliquer le transfert de couleur avec normalisation
         transferred_channels = [
-            (
-                (channel - source_channel_means[i])
-                * (target_channel_stddevs[i] / source_channel_stddevs[i])
-                + target_channel_means[i]
-            ).astype(np.uint8)
+            np.clip(
+                (
+                    (channel - source_channel_means[i])
+                    * (target_channel_stddevs[i] / source_channel_stddevs[i])
+                    + target_channel_means[i]
+                ).astype(np.uint8),
+                0,
+                255,
+            )
             for i, channel in enumerate(source_channels)
         ]
 

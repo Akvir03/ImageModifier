@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtGui import QImage, QPixmap, QColor
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QPushButton,
     QFileDialog,
+    QColorDialog,
 )
 import cv2
 import numpy as np
@@ -19,7 +20,7 @@ class ChromaticAdaptationWidget(QWidget):
         super().__init__(parent)
 
         self.image_path = ""
-        self.target_color = [0, 128, 0]
+        self.target_color = QColor(0, 128, 0)
 
         self.init_ui()
 
@@ -35,6 +36,10 @@ class ChromaticAdaptationWidget(QWidget):
         self.load_button = QPushButton("Load Image", self)
         self.load_button.clicked.connect(self.load_image)
         layout.addWidget(self.load_button)
+
+        self.choose_color_button = QPushButton("Choose Color", self)
+        self.choose_color_button.clicked.connect(self.choose_target_color)
+        layout.addWidget(self.choose_color_button)
 
         self.adapt_button = QPushButton("Adapt Image", self)
         self.adapt_button.clicked.connect(self.chromatic_adaptation)
@@ -52,6 +57,13 @@ class ChromaticAdaptationWidget(QWidget):
             pixmap = QPixmap(self.image_path)
             self.original_label.setPixmap(pixmap)
             self.original_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    def choose_target_color(self):
+        color_dialog = QColorDialog(self)
+        color_dialog.setCurrentColor(self.target_color)
+
+        if color_dialog.exec() == QColorDialog.DialogCode.Accepted:
+            self.target_color = color_dialog.currentColor()
 
     def chromatic_adaptation(self):
         if not self.image_path:
@@ -72,8 +84,8 @@ class ChromaticAdaptationWidget(QWidget):
                 np.maximum(
                     (channel - np.min(channel_means))
                     / (np.max(channel_means) - np.min(channel_means))
-                    * (np.max(self.target_color) - np.min(self.target_color))
-                    + np.min(self.target_color),
+                    * (self.target_color.green() - 0)
+                    + 0,
                     0,
                 ),
                 255,
@@ -114,3 +126,10 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Chromatic Adaptation Widget")
         self.setGeometry(100, 100, 800, 600)
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
