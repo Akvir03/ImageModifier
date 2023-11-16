@@ -15,3 +15,8 @@ The color transfer script transfers colors from a source image to a target image
 
 - Course materials
 - ChatGPT (for translation and explanations)
+
+  
+### Authors : 
+- Hurdebourcq Paul
+- Devienne Nathan
